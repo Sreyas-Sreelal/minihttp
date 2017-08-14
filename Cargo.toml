@@ -1,0 +1,16 @@
+[package]
+name = "minihttp"
+version = "0.1.0"
+authors = ["p00s <pin9sb@gmail.com>"]
+license = "MIT/Apache-2.0"
+description = "minihttp is a simple and lightweight http client lib for rust."
+include = ["src/*.rs", "Cargo.toml"]
+publish = true
+documentation = "https://docs.rs/minihttp"
+homepage = "https://github.com/p00s/minihttp"
+repository = "https://github.com/p00s/minihttp"
+
+[dependencies]
+miniurl = "0.1.2"
+minihttpse = "0.1.2"
+native-tls = "0.1.4"
