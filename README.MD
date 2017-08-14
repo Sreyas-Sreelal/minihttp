@@ -3,7 +3,7 @@
 minihttp is a simple and lightweight http client lib for rust.
 only provide basic http client feature, more like python request.
 minihttp's aim is simple, easy to use, less dependent, smaller binary.
-Enjoy your self...
+Enjoy yourself...
 
 ## Online documention
 
