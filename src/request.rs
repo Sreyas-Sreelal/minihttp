@@ -20,20 +20,20 @@ pub struct Proxy{
 
 ///http request object.
 #[derive(Debug, Clone)]
-pub struct Request{
+pub struct Request<'a>{
     host: String,
     port: u16,
     scheme: String,
     method: String,
     url: Url,
-    headers: HashMap<&'static str,&'static str>,
+    headers: HashMap<&'a str,&'a str>,
     body: Option<Vec<u8>>,
     timeout:u64,
     proxy:Option<Proxy>,
     verify:bool
 }
 
-impl Request{
+impl<'b> Request<'b>{
 
     ///return a Request object
     /// # Example
@@ -167,7 +167,7 @@ impl Request{
     /// headers.insert("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
     /// http.headers(headers);
     /// ```
-    pub fn headers(&mut self, data: HashMap<&'static str, &'static str>) -> &mut Self {
+    pub fn headers<'a:'b>(&mut self, data: HashMap<&'a str, &'a str>) -> &mut Self {
         self.headers = data;
         self
     }
