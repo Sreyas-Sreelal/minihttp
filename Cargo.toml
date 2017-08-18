@@ -1,6 +1,6 @@
 [package]
 name = "minihttp"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["p00s <pin9sb@gmail.com>"]
 license = "MIT/Apache-2.0"
 description = "minihttp is a simple and lightweight http client lib for rust."

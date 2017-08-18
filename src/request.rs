@@ -242,7 +242,7 @@ impl<'b> Request<'b>{
     pub fn proxy(&mut self,proxy:&str) -> Result<&mut Self,HttpError>{
         let url:Url = Url::parse(proxy);
         if self.scheme == "https".to_owned() && url.scheme == "http".to_owned(){
-            return return Err(HttpError::Proxy("Http proxy can only use http scheme."))
+            return  Err(HttpError::Proxy("Http proxy can only use http scheme."))
         }
 
         let host  = match url.host{
@@ -359,9 +359,8 @@ impl<'b> Request<'b>{
                 let back = Response::new(res)?;
                 Ok(back)
             }else {
-                let header = self.build_header();
                 let addr = format!("{}:{}", self.host, self.port);
-                let mut stream = TcpStream::connect(addr)?;
+                let stream = TcpStream::connect(addr)?;
                 stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
                 stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
                 let connector = TlsConnector::builder()?.build()?;

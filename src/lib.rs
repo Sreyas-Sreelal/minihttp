@@ -5,7 +5,7 @@
 //!
 //! #Example
 //! ## send a get request
-//! ```
+//! ```no_run
 //! use minihttp::request::Request;
 //!
 //! let mut http = Request::new("http://www.google.com").unwrap();
@@ -19,7 +19,7 @@
 //! ```
 //!
 //! ## send a post request
-//! ```
+//! ```no_run
 //! use minihttp::request::Request;
 //!
 //! let mut http = Request::new("http://www.google.com").unwrap();
@@ -28,7 +28,7 @@
 //! ```
 //!
 //! ## custom headers
-//! ```
+//! ```no_run
 //! use std::collections::HashMap;
 //! use minihttp::request::Request;
 //!
@@ -40,7 +40,7 @@
 //! ```
 //!
 //! ## support https
-//! ```
+//! ```no_run
 //! use minihttp::request::Request;
 //!
 //! let mut http = Request::new("https://www.google.com").unwrap();
@@ -49,7 +49,7 @@
 //! ```
 //!
 //! ## support proxy
-//! ```
+//! ```no_run
 //! use minihttp::request::Request;
 //!
 //! let mut http = Request::new("http://www.google.com").unwrap();
@@ -69,7 +69,6 @@ use minihttpse::Response;
 use native_tls::TlsConnector;
 use native_tls::{Error,HandshakeError};
 
-use std::error;
 use std::io;
 use std::net::TcpStream;
 use std::fmt;
