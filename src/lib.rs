@@ -52,8 +52,8 @@
 //! ```no_run
 //! use minihttp::request::Request;
 //!
-//! let mut http = Request::new("http://www.google.com").unwrap();
-//! let res = http.proxy("http://127.0.0.1:1080").unwrap().get().send().unwrap();
+//! let mut http = Request::new("https://www.google.com").unwrap();
+//! let res = http.proxy("https://127.0.0.1:1080").unwrap().get().send().unwrap();
 //! println!("status code {}",res.status_code());
 //! ```
 //!

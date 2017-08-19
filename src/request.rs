@@ -3,7 +3,7 @@ use super::Url;
 use super::TlsConnector;
 use super::Response;
 
-
+use std::ascii::AsciiExt;
 use std::collections::HashMap;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -291,7 +291,7 @@ impl<'b> Request<'b>{
                 //Host: www.google.com:443
                 //Proxy-Connection: keep-alive
                 let mut connect_header = String::new();
-                connect_header.push_str(&format!("CONNECT {}:{}\r\n",self.host,self.port));
+                connect_header.push_str(&format!("CONNECT {}:{} HTTP/1.1\r\n",self.host,self.port));
                 connect_header.push_str(&format!("Host: {}:{}\r\n",self.host,self.port));
                 connect_header.push_str("\r\n");
                 let addr = format!("{}:{}", proxy.host, proxy.port);
@@ -302,9 +302,14 @@ impl<'b> Request<'b>{
                 stream.flush()?;
 
                 //HTTP/1.1 200 Connection Established
-                let mut res = String::new();
-                stream.read_to_string(&mut res)?;
-                if !res.contains("Connection Established"){
+                let mut res = [0u8;1024];
+                stream.read(&mut res)?;
+
+                let res_s = match String::from_utf8(res.to_owned()){
+                    Ok(r) => r,
+                    Err(_) => return Err(HttpError::Proxy("parse proxy server response error."))
+                };
+                if !res_s.to_ascii_lowercase().contains("connection established"){
                     return Err(HttpError::Proxy("Proxy server response error."));
                 }
 
@@ -435,11 +440,6 @@ impl<'b> Request<'b>{
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn http_get() {
-        let mut http = Request::new("http://docs.rs/").unwrap();
-        println!("{}",http.get().send().unwrap().status_code())
-    }
 
     #[test]
     fn https_get() {
@@ -449,13 +449,13 @@ mod tests {
 
     #[test]
     fn http_post() {
-        let mut http = Request::new("http://docs.rs/").unwrap();
+        let mut http = Request::new("https://docs.rs/").unwrap();
         println!("{}",http.post().body_str("username=bob").send().unwrap().status_code())
     }
 
     #[test]
     fn http_get_set_header() {
-        let mut http = Request::new("http://docs.rs/").unwrap();
+        let mut http = Request::new("https://docs.rs/").unwrap();
         let mut headers = HashMap::new();
         headers.insert("Content-Type","text/html; charset=utf-8");
         println!("{}",http.headers(headers).get().send().unwrap().status_code())
@@ -472,8 +472,8 @@ mod tests {
 
     #[test]
     fn http_proxy() {
-        let mut http = Request::new("http://docs.rs/").unwrap();
-        let res = http.proxy("http://127.0.0.1:1080").unwrap().get().send().unwrap();
+        let mut http = Request::new("https://docs.rs/").unwrap();
+        let res = http.proxy("https://127.0.0.1:1080").unwrap().get().send().unwrap();
         println!("{}",res.status_code());
     }
 
