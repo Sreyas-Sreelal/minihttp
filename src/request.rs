@@ -136,10 +136,10 @@ impl<'b> Request<'b>{
     /// use minihttp::request::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.option();
+    /// http.options();
     /// ```
-    pub fn option(&mut self) -> &mut Self {
-        self.method = "OPTION".to_owned();
+    pub fn options(&mut self) -> &mut Self {
+        self.method = "OPTIONS".to_owned();
         self
     }
 
