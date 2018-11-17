@@ -305,7 +305,7 @@ impl<'b> Request<'b>{
                 let mut res = [0u8;1024];
                 stream.read(&mut res)?;
 
-                let res_s = match String::from_utf8(res.to_owned()){
+                let res_s = match String::from_utf8(res.to_owned().to_vec()){
                     Ok(r) => r,
                     Err(_) => return Err(HttpError::Proxy("parse proxy server response error."))
                 };
