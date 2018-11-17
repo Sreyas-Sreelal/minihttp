@@ -326,13 +326,9 @@ impl<'b> Request<'b>{
                     Ok(back)
 
                 }else {
-                    let connector = TlsConnector::builder()?.build()?;
+                    let connector = TlsConnector::builder().build()?;
                     let mut ssl_stream;
-                    if self.verify{
-                        ssl_stream = connector.connect(&&self.host, stream)?;
-                    }else {
-                        ssl_stream = connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(stream)?;
-                    }
+                    ssl_stream = connector.connect(&&self.host,stream)?;
                     let header = self.build_header();
                     ssl_stream.write(header.as_bytes())?;
                     if let Some(ref body) = self.body{
@@ -368,13 +364,11 @@ impl<'b> Request<'b>{
                 let stream = TcpStream::connect(addr)?;
                 stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
                 stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                let connector = TlsConnector::builder()?.build()?;
+                let connector = TlsConnector::builder().build()?;
                 let mut ssl_stream;
-                if self.verify{
-                        ssl_stream = connector.connect(&&self.host, stream)?;
-                }else {
-                        ssl_stream = connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(stream)?;
-                }
+                
+                ssl_stream = connector.connect(&&self.host, stream)?;
+        
                 let header = self.build_header();
                 ssl_stream.write(header.as_bytes())?;
                 if let Some(ref body) = self.body{
