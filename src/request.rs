@@ -19,20 +19,20 @@ pub struct Proxy{
 
 ///http request object.
 #[derive(Debug, Clone)]
-pub struct Request<'a>{
+pub struct Request{
     host: String,
     port: u16,
     scheme: String,
     method: String,
     url: Url,
-    headers: HashMap<&'a str,&'a str>,
+    headers: HashMap<String,String>,
     body: Option<Vec<u8>>,
     timeout:u64,
     proxy:Option<Proxy>,
     verify:bool
 }
 
-impl<'b> Request<'b>{
+impl Request{
 
     ///return a Request object
     /// # Example
@@ -166,7 +166,7 @@ impl<'b> Request<'b>{
     /// headers.insert("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
     /// http.headers(headers);
     /// ```
-    pub fn headers<'a:'b>(&mut self, data: HashMap<&'a str, &'a str>) -> &mut Self {
+    pub fn headers(&mut self, data: HashMap<String,String>) -> &mut Self {
         self.headers = data;
         self
     }
@@ -450,7 +450,7 @@ mod tests {
     fn http_get_set_header() {
         let mut http = Request::new("https://docs.rs/").unwrap();
         let mut headers = HashMap::new();
-        headers.insert("Content-Type","text/html; charset=utf-8");
+        headers.insert("Content-Type".to_string(),"text/html; charset=utf-8".to_string());
         println!("{}",http.headers(headers).get().send().unwrap().status_code())
     }
 
