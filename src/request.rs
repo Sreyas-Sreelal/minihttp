@@ -3,7 +3,6 @@ use super::Url;
 use super::TlsConnector;
 use super::Response;
 
-use std::ascii::AsciiExt;
 use std::collections::HashMap;
 use std::io::prelude::*;
 use std::net::TcpStream;
