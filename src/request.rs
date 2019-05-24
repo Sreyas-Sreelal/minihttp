@@ -50,11 +50,11 @@ impl Request{
         };
         Ok(
             Request{
-                host:host,
+                host,
                 port:url.port,
                 scheme:url.scheme.clone(),
                 method:String::new(),
-                url:url,
+                url,
                 headers:HashMap::new(),
                 body:None,
                 timeout:30,
@@ -222,7 +222,7 @@ impl Request{
     /// http.verify(false);
     /// ```
     pub fn verify(&mut self,verify:bool) -> Result<&mut Self,HttpError>{
-        if self.scheme == "https".to_owned(){
+        if self.scheme == "https" {
             self.verify = verify;
         }else {
             return Err(HttpError::Config("Verify setting only for https"))
@@ -240,7 +240,7 @@ impl Request{
     /// ```
     pub fn proxy(&mut self,proxy:&str) -> Result<&mut Self,HttpError>{
         let url:Url = Url::parse(proxy);
-        if self.scheme == "https".to_owned() && url.scheme == "http".to_owned(){
+        if self.scheme == "https" && url.scheme == "http" {
             return  Err(HttpError::Proxy("Http proxy can only use http scheme."))
         }
 
@@ -250,10 +250,10 @@ impl Request{
         };
 
         let proxy = Proxy{
-            host:host,
+            host,
             port:url.port,
             scheme:url.scheme.clone(),
-            url:url
+            url
         };
         self.proxy = Some(proxy);
         Ok(self)
@@ -269,15 +269,15 @@ impl Request{
     /// ```
     pub fn send(&mut self) -> Result<Response, HttpError> {
         if let Some(ref proxy) = self.proxy{
-            if proxy.scheme == "http".to_owned(){
+            if proxy.scheme == "http" {
                 let header = self.build_header();
                 let addr = format!("{}:{}", proxy.host, proxy.port);
                 let mut stream = TcpStream::connect(addr)?;
                 stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
                 stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.write(header.as_bytes())?;
+                stream.write_all(header.as_bytes())?;
                 if let Some(ref body) = self.body{
-                    stream.write(body.as_slice())?;
+                    stream.write_all(body.as_slice())?;
                 }
                 stream.flush()?;
                 let mut res :Vec<u8>= Vec::new();
@@ -297,12 +297,12 @@ impl Request{
                 let mut stream = TcpStream::connect(addr)?;
                 stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
                 stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.write(connect_header.as_bytes())?;
+                stream.write_all(connect_header.as_bytes())?;
                 stream.flush()?;
 
                 //HTTP/1.1 200 Connection Established
                 let mut res = [0u8;1024];
-                stream.read(&mut res)?;
+                stream.read_exact(&mut res)?;
 
                 let res_s = match String::from_utf8(res.to_owned().to_vec()){
                     Ok(r) => r,
@@ -312,11 +312,11 @@ impl Request{
                     return Err(HttpError::Proxy("Proxy server response error."));
                 }
 
-                if self.scheme == "http".to_owned(){
+                if self.scheme == "http" {
                     let header = self.build_header();
-                    stream.write(header.as_bytes())?;
+                    stream.write_all(header.as_bytes())?;
                     if let Some(ref body) = self.body{
-                        stream.write(body.as_slice())?;
+                        stream.write_all(body.as_slice())?;
                     }
                     stream.flush()?;
                     let mut res :Vec<u8>= Vec::new();
@@ -329,9 +329,9 @@ impl Request{
                     let mut ssl_stream;
                     ssl_stream = connector.connect(&&self.host,stream)?;
                     let header = self.build_header();
-                    ssl_stream.write(header.as_bytes())?;
+                    ssl_stream.write_all(header.as_bytes())?;
                     if let Some(ref body) = self.body{
-                        ssl_stream.write(body.as_slice())?;
+                        ssl_stream.write_all(body.as_slice())?;
                     }
                     ssl_stream.flush()?;
                     let mut res :Vec<u8>= Vec::new();
@@ -342,55 +342,53 @@ impl Request{
 
             }
 
-        }else {
-            if self.scheme =="http".to_owned(){
-                let header = self.build_header();
-                let addr = format!("{}:{}", self.host, self.port);
-                let mut stream = TcpStream::connect(addr)?;
-                stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.write(header.as_bytes())?;
-                if let Some(ref body) = self.body{
-                    stream.write(body.as_slice())?;
-                }
-                stream.flush()?;
-                let mut res :Vec<u8>= Vec::new();
-                stream.read_to_end(&mut res)?;
-                let back = Response::new(res)?;
-                Ok(back)
-            }else {
-                let addr = format!("{}:{}", self.host, self.port);
-                let stream = TcpStream::connect(addr)?;
-                stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                let connector = TlsConnector::builder().build()?;
-                let mut ssl_stream;
-                
-                ssl_stream = connector.connect(&&self.host, stream)?;
-        
-                let header = self.build_header();
-                ssl_stream.write(header.as_bytes())?;
-                if let Some(ref body) = self.body{
-                    ssl_stream.write(body.as_slice())?;
-                }
-                ssl_stream.flush()?;
-
-                let mut res :Vec<u8>= Vec::new();
-                ssl_stream.read_to_end(&mut res)?;
-                let back = Response::new(res)?;
-                Ok(back)
+        }else if self.scheme =="http" {
+            let header = self.build_header();
+            let addr = format!("{}:{}", self.host, self.port);
+            let mut stream = TcpStream::connect(addr)?;
+            stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+            stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+            stream.write_all(header.as_bytes())?;
+            if let Some(ref body) = self.body{
+                stream.write_all(body.as_slice())?;
             }
+            stream.flush()?;
+            let mut res :Vec<u8>= Vec::new();
+            stream.read_to_end(&mut res)?;
+            let back = Response::new(res)?;
+            Ok(back)
+        }else {
+            let addr = format!("{}:{}", self.host, self.port);
+            let stream = TcpStream::connect(addr)?;
+            stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+            stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+            let connector = TlsConnector::builder().build()?;
+            let mut ssl_stream;
+            
+            ssl_stream = connector.connect(&&self.host, stream)?;
+    
+            let header = self.build_header();
+            ssl_stream.write_all(header.as_bytes())?;
+            if let Some(ref body) = self.body{
+                ssl_stream.write_all(body.as_slice())?;
+            }
+            ssl_stream.flush()?;
+
+            let mut res :Vec<u8>= Vec::new();
+            ssl_stream.read_to_end(&mut res)?;
+            let back = Response::new(res)?;
+            Ok(back)
         }
     }
 
     //build http request headers
     fn build_header(&self) ->String{
         if let  Some(ref proxy) = self.proxy{
-            if proxy.scheme == "http".to_owned(){
+            if proxy.scheme == "http" {
                 let mut headers = String::new();
                 headers.push_str(&format!("{} {} HTTP/1.1\r\n",self.method,self.url.as_string()));
                 headers.push_str(&format!("Host: {}:{}\r\n",self.host,self.port));
-                headers.push_str(&format!("Connection: Close\r\n"));
+                headers.push_str("Connection: Close\r\n");
                 if let Some(ref body) = self.body{
                     headers.push_str(&format!("Content-Length: {}\r\n",body.len()));
                 }
@@ -403,7 +401,7 @@ impl Request{
                 let mut headers = String::new();
                 headers.push_str(&format!("{} {} HTTP/1.1\r\n",self.method,self.url.request_string()));
                 headers.push_str(&format!("Host: {}:{}\r\n",self.host,self.port));
-                headers.push_str(&format!("Connection: Close\r\n"));
+                headers.push_str("Connection: Close\r\n");
                 if let Some(ref body) = self.body{
                     headers.push_str(&format!("Content-Length: {}\r\n",body.len()));
                 }
@@ -417,7 +415,7 @@ impl Request{
                 let mut headers = String::new();
                 headers.push_str(&format!("{} {} HTTP/1.1\r\n",self.method,self.url.request_string()));
                 headers.push_str(&format!("Host: {}:{}\r\n",self.host,self.port));
-                headers.push_str(&format!("Connection: Close\r\n"));
+                headers.push_str("Connection: Close\r\n");
                 if let Some(ref body) = self.body{
                     headers.push_str(&format!("Content-Length: {}\r\n",body.len()));
                 }
