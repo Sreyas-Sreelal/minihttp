@@ -60,18 +60,18 @@
 
 #![doc(html_root_url = "https://docs.rs/minihttp")]
 
-extern crate native_tls;
 extern crate minihttpse;
 extern crate miniurl;
+extern crate native_tls;
 
-use miniurl::Url;
 use minihttpse::Response;
+use miniurl::Url;
 use native_tls::TlsConnector;
-use native_tls::{Error,HandshakeError};
+use native_tls::{Error, HandshakeError};
 
+use std::fmt;
 use std::io;
 use std::net::TcpStream;
-use std::fmt;
 
 ///http request module
 pub mod request;
@@ -86,7 +86,6 @@ pub enum HttpError {
     SSL(Error),
     SSLHandshake(HandshakeError<TcpStream>),
 }
-
 
 impl From<io::Error> for HttpError {
     fn from(err: io::Error) -> HttpError {
@@ -113,19 +112,15 @@ impl From<Error> for HttpError {
     }
 }
 
-
 impl fmt::Display for HttpError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             HttpError::Parse(ref err) => write!(f, "Parse error: {}", err),
             HttpError::Config(ref err) => write!(f, "Config error: {}", err),
             HttpError::IO(ref err) => write!(f, "IO error: {}", err),
-            HttpError::Proxy(ref err) =>write!(f,"Proxy error : {}",err),
+            HttpError::Proxy(ref err) => write!(f, "Proxy error : {}", err),
             HttpError::SSL(ref err) => write!(f, "SSL error: {}", err),
             HttpError::SSLHandshake(ref err) => write!(f, "SSL handshake error: {}", err),
         }
     }
 }
-
-
-
