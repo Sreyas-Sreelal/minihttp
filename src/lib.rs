@@ -87,6 +87,8 @@ pub enum HttpError {
     SSLHandshake(HandshakeError<TcpStream>),
 }
 
+impl std::error::Error for HttpError {}
+
 impl From<io::Error> for HttpError {
     fn from(err: io::Error) -> HttpError {
         HttpError::IO(err)
